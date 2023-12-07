@@ -25,13 +25,13 @@ const theme = {
     extra_bold: "Lato_900Black",
   },
   font_size: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
+    xs: '12px',
+    sm: '14px',
+    md: '16px',
+    lg: '18px',
+    xl: '20px',
+    xxl: '24px',
+    xxxl: '32px',
   },
 };
 
