@@ -6,6 +6,12 @@ import { TextInputForm } from '../../../../shared/components/TextInputForm';
 import {zodResolver} from '@hookform/resolvers/zod'
 import { z } from 'zod';
 import {useState} from 'react'
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { PublicStackParamList } from '../../../../routes/PublicRoutes';
+import { loginService } from '../../../../shared/services/authService';
+import { useAuthStore } from '../../../../shared/store/useAuthStore';
+import { useToastStore } from '../../../../shared/store/useToastStore';
 
 const loginSchema = z.object({
   email: z.string({
@@ -22,7 +28,16 @@ const loginSchema = z.object({
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
+type LoginScreenProps = NativeStackNavigationProp<
+  PublicStackParamList,
+  "LoginScreen"
+>;
+
 export default function LoginScreen() {
+  const setToken = useAuthStore(state => state.setToken);
+  const setMessage = useToastStore(state => state.setMessage);
+  const { navigate } = useNavigation<LoginScreenProps>();
+
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
@@ -33,8 +48,29 @@ export default function LoginScreen() {
     }
   );
 
-  const onSubmit = (data: LoginSchema) => {
-    console.log({data});
+  const onSubmit = async (data: LoginSchema) => {
+    try {
+      setIsLoading(true);
+
+      const response = await loginService({
+        email: data.email,
+        password: data.password,
+      });
+
+      setToken(response.token);
+      
+      setMessage({
+        text: 'Login realizado com sucesso!',
+        type: 'success'
+      })
+    } catch (error: any) {
+      setMessage({
+        text: error?.message,
+        type: 'danger'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   } 
 
   return(
@@ -69,7 +105,7 @@ export default function LoginScreen() {
         <S.ButtonCreateAccount 
           title='Criar conta'
           type='outlined'
-          onPress={() => null}
+          onPress={() => navigate('CreateAccountScreen')}
         />
       </S.CreateAccountContaier>
     </S.ImageBackground>

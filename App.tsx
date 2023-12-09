@@ -10,6 +10,7 @@ import {
   Lato_900Black,
 } from '@expo-google-fonts/lato';
 import { Loading } from './src/shared/components/Loading';
+import { Toast } from './src/shared/components/Toast';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -31,6 +32,7 @@ export default function App() {
           translucent 
         />
         <Routes />
+        <Toast />
       </NavigationContainer>
     </ThemeProvider>
   );
