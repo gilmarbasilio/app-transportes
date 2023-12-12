@@ -3,11 +3,11 @@ import PrivateRoutes from "./PrivateRoutes";
 import PublicRoutes from "./PublicRoutes";
 
 export default function Routes() {
-  // const user = useAuthStore(state => state.user)
-  const token = useAuthStore(state => state.token);
+  const user = useAuthStore(state => state.user);
+  console.log({user});
   return (
     <>
-      {token ? <PrivateRoutes /> : <PublicRoutes />}
+      {user?.id ? <PrivateRoutes /> : <PublicRoutes />}
     </>
   )
 }

@@ -9,7 +9,7 @@ import {useState} from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PublicStackParamList } from '../../../../routes/PublicRoutes';
-import { loginService } from '../../../../shared/services/authService';
+import { getUserLoggedService, loginService } from '../../../../shared/services/authService';
 import { useAuthStore } from '../../../../shared/store/useAuthStore';
 import { useToastStore } from '../../../../shared/store/useToastStore';
 
@@ -35,6 +35,7 @@ type LoginScreenProps = NativeStackNavigationProp<
 
 export default function LoginScreen() {
   const setToken = useAuthStore(state => state.setToken);
+  const setUser = useAuthStore(state => state.setUser);
   const setMessage = useToastStore(state => state.setMessage);
   const { navigate } = useNavigation<LoginScreenProps>();
 
@@ -58,7 +59,15 @@ export default function LoginScreen() {
       });
 
       setToken(response.token);
+
+      const userLogged = await getUserLoggedService();
       
+      setUser({
+        id: userLogged.id,
+        name: userLogged.name,
+        photo: userLogged.photo
+      });
+
       setMessage({
         text: 'Login realizado com sucesso!',
         type: 'success'

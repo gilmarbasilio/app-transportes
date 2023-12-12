@@ -42,3 +42,22 @@ export const loginService = async (data: LoginServiceRequest): Promise<LoginServ
     throw error;
   }
 }
+
+export type UserLoggedServiceResponse = {
+  id: string;
+  name: string;
+  email: string;
+  photo: string;
+}
+
+export const getUserLoggedService = async () => {
+  try {
+    const response = await api.get<UserLoggedServiceResponse>('/auth/me');
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message)
+    }
+    throw error;
+  }
+}
