@@ -89,7 +89,7 @@ export const HeaderHome = () => {
         </S.UserInfoAvatarContainer>
         <S.UserDetailsContainer>
           <S.UserDetailsGreeting>Olá,</S.UserDetailsGreeting>
-          <S.UserDetailsName>Gilmar</S.UserDetailsName>
+          <S.UserDetailsName>{user?.name}</S.UserDetailsName>
         </S.UserDetailsContainer>
       </S.UserInfo>
       <S.UserLogoff onPress={handleLogoff}>

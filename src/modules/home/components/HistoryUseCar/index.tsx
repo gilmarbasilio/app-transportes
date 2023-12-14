@@ -6,22 +6,22 @@ const list: HistoryItemDetail[] = [
   {
     id: '1234354',
     plate: 'XXX-0000',
-    departureDate: ''
+    departureDate: '2023-12-13T17:00:00'
   },
   {
     id: '1234354123123',
     plate: 'XXX-0001',
-    departureDate: ''
+    departureDate: '2023-12-13T16:00:00'
   },
   {
     id: '1234312312354',
     plate: 'XXX-0002',
-    departureDate: ''
+    departureDate: '2023-12-13T15:00:00'
   },
   {
     id: '12343453454354',
     plate: 'XXX-0003',
-    departureDate: ''
+    departureDate: '2023-12-13T12:00:00'
   },
 ]
 
