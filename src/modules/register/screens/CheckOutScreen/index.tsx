@@ -10,8 +10,8 @@ import { Alert, ScrollView } from 'react-native';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToastStore } from '../../../../shared/store/useToastStore';
-import { createHistoricService, getHistoricByIdService } from '../../../../shared/services/historiesService';
-import { startLocationTask } from '../../../../shared/tasks/backgroundLocationTask';
+import { checkOutHistoricService, createHistoricService, getHistoricByIdService } from '../../../../shared/services/historiesService';
+import { startLocationTask, stopLocationTask } from '../../../../shared/tasks/backgroundLocationTask';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PrivateStackParamList } from '../../../../routes/PrivateRoutes';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +20,7 @@ import { getStorageLocations } from '../../../../shared/storage/locationStorage'
 import { Historic } from '../../../../shared/models/historicModel';
 import { format, parseISO } from 'date-fns';
 import { Loading } from '../../../../shared/components/Loading';
+import { Locations } from '../../components/Locations';
 
 const registerCarUseSchema = z.object({
   plate: z.string({
@@ -37,11 +38,11 @@ type CheckOutScreenProps = NativeStackScreenProps<
   "CheckOutScreen"
 >;
 
-export const CheckOutScreen = ({route}: CheckOutScreenProps) => {
+export const CheckOutScreen = ({route, navigation}: CheckOutScreenProps) => {
   const setMessage = useToastStore(state => state.setMessage);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLocation, setIsLoadingForm] = useState(true);
   const [coordinates, setCoordinates] = useState<LatLng[]>();
-  const [currentAddress, setCurrentAddress] = useState<string>();
   const [historic, setHistoric] = useState<Historic>();
   const [departure, setDeparture] = useState<any>();
   const [arrival, setArrival] = useState<any>();
@@ -87,6 +88,43 @@ export const CheckOutScreen = ({route}: CheckOutScreenProps) => {
     }
   }
 
+  const handleCheckOutRegister = async () => {
+    try {
+      setIsLoading(true);
+
+      if(!historic) {
+        return setMessage({
+          text: 'Não foi possível obeter os dados para registar a chegada do veículo.',
+          type: 'danger'
+        });
+      }
+
+      const locations = await getStorageLocations();
+
+      await checkOutHistoricService({
+        id: historic.id,
+        coords: locations
+      });
+
+      await stopLocationTask();
+
+      setMessage({
+        text: 'Chegada registrada com sucesso',
+        type: 'success'
+      });
+
+      // navigation.navigate('HomeScreen');
+      navigation.goBack();
+    } catch (error: any) { 
+      setMessage({
+        text: error?.message || 'Não foi possível registar a chegada do veículo',
+        type: 'danger'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     getHistoricInfo();
   }, [route.params.id])
@@ -100,36 +138,21 @@ export const CheckOutScreen = ({route}: CheckOutScreenProps) => {
       <HeaderRegisterCar title='Chegada' />
       <ScrollView>
         {coordinates && <Map coordinates={coordinates} />} 
-        <S.FormContainer>
-          {/* {currentAddress && (
-            <LocationInfo 
-              label='Localização atual'
-              description={currentAddress}
-              icon={{
-                iconName: 'FontAwesome5',
-                name: 'car'
-              }}
-            />
-          )} */}
+        <S.Content>
+          <Locations departure={departure} arrival={arrival} />
 
-          {/* <LicensePlateInput 
-            control={control}
-            label="Placa do veículo"
-            placeholder="XXX-0000"
+          <S.Label>Placa do veículo</S.Label>
+          <S.LicensePlate>{historic?.licensePlate}</S.LicensePlate>
+          
+          <S.Label>Finalidade de uso</S.Label>
+          <S.Description>{historic?.description}</S.Description>
+
+          <S.ButtonCheckOutOutput 
+            title='Registrar Chegada'
+            onPress={handleCheckOutRegister}
+            isLoading={isLoading}
           />
-
-          <JustificationInput 
-            control={control}
-            label="Finalidade do uso"
-            placeholder="Vou utilizar o veículo para..."
-          />
-
-          <S.ButtonRegisterOutput 
-            title="Registrar Saída"
-            onPress={handleSubmit(handleDepartureRegister)}
-            isLoading={isLoadingForm}
-          /> */}
-        </S.FormContainer>
+        </S.Content>
       </ScrollView>
     </S.Container>
   )

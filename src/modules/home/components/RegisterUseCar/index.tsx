@@ -3,7 +3,7 @@ import theme from '../../../../shared/theme';
 import * as S from './styles'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { PrivateStackParamList } from '../../../../routes/PrivateRoutes';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { getCarInUseService } from '../../../../shared/services/historiesService';
 import { Historic } from '../../../../shared/models/historicModel';
@@ -18,13 +18,14 @@ export const RegisterUseCar = () => {
   const [isLoading, setisLoading] = useState(true);
   const [historic, setHistoric] = useState<Historic | null>();
   const { navigate } = useNavigation<RegisterUserCarProps>();
+  const isFocused = useIsFocused();
 
   const handleGetCarInUse = async () => {
     try {
       const response = await getCarInUseService();
       setHistoric(response);
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
       setisLoading(false);
     }
@@ -33,7 +34,7 @@ export const RegisterUseCar = () => {
   const handleRegisterCar = async () => {
     if(historic) {
       navigate('CheckOutScreen', {
-        id: historic.id
+        id: historic?.id
       });
     } else {
       navigate('CheckInScreen');
@@ -42,7 +43,7 @@ export const RegisterUseCar = () => {
 
   useEffect(() => {
     handleGetCarInUse();
-  }, [])
+  }, [isFocused])
 
   return (
     <S.Container>
